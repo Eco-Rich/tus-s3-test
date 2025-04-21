@@ -1,10 +1,8 @@
 package tus
 
 import (
-	"gin/config"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/tus/tusd/pkg/filestore"
 	"github.com/tus/tusd/pkg/handler"
-	"github.com/tus/tusd/pkg/s3store"
 	"log"
 	"net/http"
 	"os"
@@ -13,13 +11,16 @@ import (
 var TusHandler http.Handler
 
 func InitTusHandler() http.Handler {
-	sess, err := config.NewAWSSession()
+	uploadDir := "/tmp/tus_uploads"
+	err := os.MkdirAll(uploadDir, os.ModePerm)
 	if err != nil {
-		log.Fatal("AWS 세션 생성실패:", err)
+		log.Fatal("업로드 디렉토리 생성 실패 : ", err)
 	}
 
-	s3Client := s3.New(sess)
-	store := s3store.New(os.Getenv("S3_BUCKET"), s3Client)
+	store := filestore.FileStore{
+		Path: uploadDir,
+	}
+
 	composer := handler.NewStoreComposer()
 	store.UseIn(composer)
 
@@ -34,7 +35,7 @@ func InitTusHandler() http.Handler {
 		log.Fatal("tus 핸들러 생성 실패:", err)
 	}
 
-	go listenUploadComplete(tusHandler)
+	go listenUploadComplete(tusHandler, uploadDir)
 
 	TusHandler = http.StripPrefix("/files/", tusHandler)
 	return TusHandler
