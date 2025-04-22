@@ -35,6 +35,7 @@ func InitTusHandler() http.Handler {
 		log.Fatal("tus 핸들러 생성 실패:", err)
 	}
 
+	// 비동기 처리 진행하므로 Main 서버에서 db 처리 할 경우 api 요청 보내야 함.
 	go listenUploadComplete(tusHandler, uploadDir)
 
 	TusHandler = http.StripPrefix("/files/", tusHandler)
