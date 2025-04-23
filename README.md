@@ -15,4 +15,5 @@
 1. 3번 항목에서 On-Demand Instance를 띄우면서 client의 응답 대기 시간이 너무 길어지게된다.
    1. UUID 생성과 클라이언트 요청에 대한 응답 이후 인스턴스 시작 명령(시작 시 uuid 전송 동시에)
    2. 고정 ip(TUS 서버)로 health check polling 동시에 클라이언트 측 display
+
 -> 해당 과정에서 display는 어떻게 진행할 것인가?
